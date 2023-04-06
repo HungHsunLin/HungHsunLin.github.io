@@ -17,8 +17,8 @@ title: Tony筆記庫
 email: tony760815@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   學習歷程的記錄與分享
-baseurl: "/HungHsunLin/knowledge-sharing.git" # the subpath of your site, e.g. /blog
-url: "https://github.com" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://hunghsunlin.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: Tony_Lin_P
 github_username:  tony760815
 
