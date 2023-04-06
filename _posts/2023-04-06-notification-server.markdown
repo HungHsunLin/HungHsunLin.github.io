@@ -48,7 +48,7 @@ p8憑證是一種用於驗證與APNs的連線的檔案，它包含了一個私�
     - `apns-priority`：一個數字，表示這個推播請求的優先級。你可以提供10或5兩種值。10表示立即發送，5表示可以延遲發送。如果你不提供這個標頭，則預設為10。
     - `apns-topic`：一個字串，表示這個推播請求的主題。通常是你的應用程式的bundle ID。如果你使用p8憑證來驗證身份，則必須提供這個標頭。
     - `authorization`：一個字串，表示你的身份驗證資訊。如果你使用p8憑證來驗證身份，則必須提供使用p8憑證生成的JWT（JSON Web Token）。
-- Payload：一個JSON物件，payload必須包含一個`aps`鍵，其值是一個物件，包含了推播的基本資訊，例如：
+- Payload：一個JSON物件，payload必須包含一個`aps`key，其值是一個物件，包含了推播的基本資訊，例如：
 
     ```json
     {
@@ -64,7 +64,7 @@ p8憑證是一種用於驗證與APNs的連線的檔案，它包含了一個私�
     }
     ```
 
-    - `alert`：推播的訊息內容，可以是一個字串或一個物件。如果是一個物件，可以包含以下的鍵：
+    - `alert`：推播的訊息內容，可以是一個字串或一個物件。如果是一個物件，可以包含以下的Key：
     - `title`：推播的標題，顯示在通知中心和鎖定畫面上。
     - `body`：推播的內容，顯示在通知中心和鎖定畫面上。
     - `subtitle`：推播的副標題，顯示在通知中心和鎖定畫面上。
@@ -74,9 +74,13 @@ p8憑證是一種用於驗證與APNs的連線的檔案，它包含了一個私�
     - `content-available`：如果設為1，表示這是一個靜默推播（silent notification），不會有任何視覺或聽覺效果，但會喚醒App並執行一些背景任務。
     - `mutable-content`：如果設為1，表示這是一個可變更內容的推播（mutable-content notification），可以讓App在收到推播後修改其內容或附件，例如加入圖片或影片等。
 
-  除了`aps`鍵之外，payload還可以包含其他自定義的鍵值對，例如上面例子中的`customKey`和`customValue`。這些自定義的資料可以在App收到推播後取得並處理。
+  除了`aps`之外，payload還可以包含其他自定義的Key Value，例如上面例子中的`customKey`和`customValue`。這些自定義的資料可以在App收到推播後取得並處理。
 
   payload的大小限制為4KB，如果超過這個限制，APNs會拒絕發送。
+
+# 程式範例
+
+程式碼範例可以在[GitHub](https://github.com/HungHsunLin/test_notification)上下載
 
 ## 產生JWT
 
@@ -86,7 +90,7 @@ p8憑證是一種用於驗證與APNs的連線的檔案，它包含了一個私�
 conda install pyjwt
 ```
 
-我們需要使用pyjwt套件的encode方法。這個方法接受三個參數：payload、key和algorithm。payload是一個字典，包含了JWT的內容資訊。key是一個字串或一個bytes物件，表示我們的p8憑證。algorithm是一個字串，表示我們使用的加密演算法。在這裡，我們使用ES256演算法，這是Apple官方建議的演算法。
+我們需要使用pyjwt套件的encode方法。這個方法接受三個參數：payload、key和algorithm。payload是一個字典，包含了JWT的內容資訊。key是私鑰，是一個字串或一個bytes物件。algorithm是一個字串，表示我們使用的加密演算法。在這裡，我們使用ES256演算法產生私鑰，這是Apple官方建議的演算法。
 
 我們的payload需要包含以下三個欄位：
 
@@ -95,70 +99,91 @@ conda install pyjwt
 - kid：表示我們的Key ID
 
 ```python
-import jwt
-import time
+  import jwt
+  import datetime
+  
+  private_key_path = '/path/to/AuthKey.p8'
+  key_id = 'ABCD1234EF'
+  team_id = 'ABCDEFGHIJ'
 
-# 設定p8憑證的路徑、Key ID、Team ID和App Bundle ID
-p8_file = 'path/to/p8/file'
-key_id = 'ABCD1234EF'
-team_id = 'ABCDEFGHIJ'
-bundle_id = 'com.example.app'
+  # 讀取私鑰
+  with open(private_key_path, 'r') as f:
+      private_key = f.read()
 
-# 產生JWT
-token = jwt.encode(
-# 設定JWT的payload，包含iss（發行者）、iat（發行時間）和aud（接收者）
-{
-'iss': team_id,
-'iat': time.time()
-},
-# 讀取p8憑證的內容
-open(p8_file, 'r').read(),
-# 設定JWT的header，包含alg（演算法）和kid（Key ID）
-headers={
-'alg': 'ES256',
-'kid': key_id
-}
-)
+    # 設定JWT的header，包含alg（演算法）和kid（Key ID）
+    headers = {
+        "alg": "ES256",
+        "kid": key_id,
+        "typ": "JWT"
+    }
+
+    # 設定JWT的payload，包含iss（發行者）、iat（發行時間）、exp（過期時間）
+    payload = {
+        "iss": team_id,
+        "iat": datetime.datetime.utcnow(),
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+    }
+
+    token = jwt.encode(
+        payload,
+        private_key,
+        algorithm="ES256",
+        headers=headers
+    )
 ```
 
 ## 遠端推播的 HTTP/2 請求格式
 
 要向 Apple 推播服務發送遠端推播通知，您需要使用 HTTP/2 協議發送 POST 請求到 https://api.push.apple.com/3/device/<device-token> 端點，其中 <device-token> 是目標裝置的裝置令牌。
 
-我們可以使用 Hyper HTTP/2 客戶端與 APNs 進行 HTTP/2 通信。以下是建立 HTTP/2 連接的 Python 代碼範例：
+我們可以使用 httpx 套件來建立一個支援HTTP/2.0的client與 APNs 進行 HTTP/2 通信。 要注意的是 httpx 套件只支援 python 3.9 以上版本。
 
-```python
-import hyper
+要使用 httpx 建立連線，要先使用以下指令安裝套件：
 
-push_host = 'api.push.apple.com'
-push_port = 443
-
-conn = hyper.HTTP20Connection(push_host, port=push_port, secure=True)
-
-headers = {
-    'authorization': 'bearer {}'.format(jwt_token),
-    'content-type': 'application/json'
-}
-
-path = '/3/device/{}'.format(device_token)
+```bash
+pip install 'httpx[http2]'
 ```
-### 發送推播通知
+
+以下是建立 HTTP/2 連接的 Python 程式碼範例：
 
 ```python
-import json
+import httpx
+import apns_token_manager
 
-payload = {
-    'aps': {
-        'alert': {
-            'title': 'Hello, World!',
-            'body': 'This is a remote notification!'
-        },
-        'badge': 1
+device_token = '00fc13adff785122b4ad28809a3420982341241421348097878e577c991de8f0'
+path = f'/3/device/{device_token}'
+bundleID = 'com.notification.test'
+jwt_token = 'eyJhbGciOiJFUzI1NiIsImtpZCI6IkFCQ0QxMjM0RUYiLCJ0eXAiOiJKV1QifQ'
+
+# 推播主機的URL
+url = f'https://api.sandbox.push.apple.com{path}'
+
+# 推播內容
+    json_content = {
+        'aps': {
+            'alert': {
+                'title': '測試推播標題',
+                'subtitle': '測試推播副標題文字',
+                'body': '推播內容文字'
+            }
+        }
     }
-}
 
-conn.request('POST', path, body=json.dumps(payload), headers=headers)
-resp = conn.get_response()
-print(resp.status)
-print(resp.read())
+    headers = {
+        'apns-topic': bundleID,
+        'authorization': f'Bearer {jwt_token}',
+        'apns-push-type': 'alert',
+        'content-type': 'application/json'
+    }
+
+    # 建立HTTP/2.0連線
+    client = httpx.Client(http2=True)
+    response = client.post(url, headers=headers, json=json_content)
+
+    # 關閉HTTP/2連接
+    client.close()
 ```
+
+
+# 參考資料
+[Apple developer documention](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server)
