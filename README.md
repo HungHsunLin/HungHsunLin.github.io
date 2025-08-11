@@ -1,10 +1,4 @@
----
-layout: page
-title: About
-permalink: /about/
----
-
-## 林弘勳 (Tony Lin)
+# 林弘勳 (Tony Lin)
 
 ## iOS App Developer
 
@@ -12,7 +6,7 @@ permalink: /about/
 
 ### 關於我
 
-具六年以上經驗的 iOS 工程師，專長於 App 架構設計與模組化開發。主導開發的 Low-code 平台成功支援 **20+** 款 App 的快速部署，並具備 **3** 個從零到一獨立開發並上架 App 的完整經驗。熟悉 Swift、Combine、Concurrency、MVVM 架構，並擅長以 **Fastlane** 與 **GitLab CI** 建構 CI/CD 自動化流程。
+具備六年以上經驗的 iOS 工程師，專長於 App 架構設計與模組化開發。主導開發的 Low-code 平台成功支援 **20+** 款 App 的快速部署，並具備 **3** 個從零到一獨立開發並上架 App 的完整經驗。熟悉 Swift、Combine、Concurrency、MVVM 架構，並擅長以 **Fastlane** 與 **GitLab CI** 建構 CI/CD 自動化流程。
 
 ---
 
@@ -37,7 +31,7 @@ permalink: /about/
   - 獨立完成 App 的所有開發、測試與上架流程。
   - App 成功累積近萬下載量。
 - **使用技術**: Swift, MVVM, Alamofire, Kingfisher, Firebase
-- [App Store 連結](https://apps.apple.com/tw/app/hoho-%E5%A5%BD%E6%9C%8D%E5%8B%99-%E5%A5%BD%E7%94%9F%E6%B4%BB/id1466588367)
+- **[App Store 連結](https://apps.apple.com/tw/app/hoho-%E5%A5%BD%E6%9C%8D%E5%8B%99-%E5%A5%BD%E7%94%9F%E6%B4%BB/id1466588367)**
 - **專案截圖**:
 
 <img src="/assets/img/hoho_app_1.jpeg" width="200"/> <img src="/assets/img/hoho_app_2.jpeg" width="200"/> <img src="/assets/img/hoho_app_3.jpeg" width="200"/>
