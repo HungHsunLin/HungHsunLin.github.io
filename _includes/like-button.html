@@ -1,0 +1,115 @@
+<div class="like-section">
+  <button class="like-btn" data-post-id="{{ page.id | slugify }}">
+    <span class="like-icon">❤️</span>
+    <span class="like-count">0</span>
+  </button>
+</div>
+
+<style>
+.like-section {
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.like-btn {
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.like-btn:hover {
+  border-color: #ff4458;
+  transform: scale(1.05);
+}
+
+.like-btn.liked {
+  background: linear-gradient(135deg, #ff4458, #ff6b6b);
+  border-color: #ff4458;
+  color: white;
+}
+
+.like-btn.liked .like-icon {
+  animation: heartBeat 0.5s;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.like-icon {
+  font-size: 20px;
+  display: inline-block;
+}
+
+.like-count {
+  font-weight: bold;
+  min-width: 20px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const likeBtn = document.querySelector('.like-btn');
+  if (!likeBtn) return;
+  
+  const postId = likeBtn.dataset.postId;
+  const likeCountEl = likeBtn.querySelector('.like-count');
+  
+  // 從 localStorage 讀取點讚數據
+  let likesData = JSON.parse(localStorage.getItem('postLikes') || '{}');
+  let userLikes = JSON.parse(localStorage.getItem('userLikes') || '[]');
+  
+  // 初始化點讚數
+  if (!likesData[postId]) {
+    likesData[postId] = 0;
+  }
+  
+  // 更新顯示
+  updateLikeDisplay();
+  
+  // 點擊事件
+  likeBtn.addEventListener('click', function() {
+    const isLiked = userLikes.includes(postId);
+    
+    if (isLiked) {
+      // 取消點讚
+      userLikes = userLikes.filter(id => id !== postId);
+      likesData[postId] = Math.max(0, likesData[postId] - 1);
+      likeBtn.classList.remove('liked');
+    } else {
+      // 點讚
+      userLikes.push(postId);
+      likesData[postId]++;
+      likeBtn.classList.add('liked');
+    }
+    
+    // 保存到 localStorage
+    localStorage.setItem('postLikes', JSON.stringify(likesData));
+    localStorage.setItem('userLikes', JSON.stringify(userLikes));
+    
+    // 更新顯示
+    updateLikeDisplay();
+  });
+  
+  function updateLikeDisplay() {
+    likeCountEl.textContent = likesData[postId] || 0;
+    
+    if (userLikes.includes(postId)) {
+      likeBtn.classList.add('liked');
+    } else {
+      likeBtn.classList.remove('liked');
+    }
+  }
+});
+</script>
