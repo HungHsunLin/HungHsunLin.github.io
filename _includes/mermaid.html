@@ -1,0 +1,45 @@
+<!-- Mermaid JS for rendering diagrams -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  // Initialize mermaid with a specific theme
+  mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'default',
+    themeVariables: {
+      primaryColor: '#f0f0f0',
+      primaryTextColor: '#333',
+      primaryBorderColor: '#ccc',
+      lineColor: '#333',
+      secondaryColor: '#006100',
+      tertiaryColor: '#fff'
+    },
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true
+    },
+    sequence: {
+      useMaxWidth: true
+    }
+  });
+  
+  // Function to render mermaid diagrams in code blocks
+  document.addEventListener("DOMContentLoaded", function() {
+    // Find all code blocks with language-mermaid class
+    document.querySelectorAll('pre code.language-mermaid').forEach(function(element) {
+      // Get the mermaid code
+      var mermaidCode = element.textContent;
+      
+      // Create a div to hold the rendered diagram
+      var mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = mermaidCode;
+      
+      // Replace the code block with the mermaid div
+      var preElement = element.parentElement;
+      preElement.parentElement.replaceChild(mermaidDiv, preElement);
+    });
+    
+    // Re-render mermaid diagrams
+    mermaid.init();
+  });
+</script>
